@@ -86,7 +86,7 @@ public class ApiTest {
         // 1. 创建参数
         ChatCompletionRequest chatCompletion = ChatCompletionRequest
                 .builder()
-                .messages(Collections.singletonList(Message.builder().role(Constants.Role.USER).content("1+1等于几").build()))
+                .messages(Collections.singletonList(Message.builder().role(Constants.Role.USER).content("加减乘除是什么").build()))
                 .model(ChatCompletionRequest.Model.GPT_3_5_TURBO.getCode())
                 .build();
         // 2. 发起请求
