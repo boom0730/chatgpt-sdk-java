@@ -33,7 +33,9 @@ public class ApiTest {
         // 1. 配置文件【如果你从小傅哥获取key 会给你提供apihost，你可以分别替换下】
         Configuration configuration = new Configuration();
         configuration.setApiHost("https://pro-share-aws-api.zcyai.com/");
+        configuration.setApiKey("sk-xMfFDTpPdxPiJVbl5cD12543B71f4477B40b24D30a3bDf88");
         // 可以根据课程首页评论置顶说明获取 apihost、apikey；https://t.zsxq.com/0d3o5FKvc
+        //configuration.setAuthToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4ZmciLCJleHAiOjE2ODMyODE2NzEsImlhdCI6MTY4MzI3ODA3MSwianRpIjoiMWUzZTkwYjYtY2UyNy00NzNlLTk5ZTYtYWQzMWU1MGVkNWE4IiwidXNlcm5hbWUiOiJ4ZmcifQ.YgQRJ2U5-9uydtd6Wbkg2YatsoX-y8mS_OJ3FdNRaX0");
         // 2. 会话工厂
         OpenAiSessionFactory factory = new DefaultOpenAiSessionFactory(configuration);
         // 3. 开启会话
