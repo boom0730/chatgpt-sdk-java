@@ -1,10 +1,11 @@
 package cn.bugstack.chatgpt.session;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import cn.bugstack.chatgpt.IOpenAiApi;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSources;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,6 +19,9 @@ import org.jetbrains.annotations.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Configuration {
+    @Getter
+    @Setter
+    private IOpenAiApi openAiApi;
 
     @Getter
     @NotNull
@@ -30,4 +34,12 @@ public class Configuration {
 //    @NotNull
     private String authToken;
 
+    @Getter
+    @Setter
+    private OkHttpClient okHttpClient;//客户端 相关信息
+
+    public EventSource.Factory createRequestFactory() {
+        //直接放到configuration里面来创建  因为反正要使用
+        return EventSources.createFactory(okHttpClient);
+    }
 }

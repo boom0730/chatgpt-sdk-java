@@ -47,7 +47,9 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
                 //.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 21284)))
                 .build();
 
-        // 3. 创建 API 服务
+        configuration.setOkHttpClient(okHttpClient);
+
+        // 3. 创建 API 服务    Retrofit基于 OkHttp 进行 HTTP 请求
         IOpenAiApi openAiApi = new Retrofit.Builder()
                 .baseUrl(configuration.getApiHost())//设置 API 的基础 URL
                 .client(okHttpClient)//设置用于网络请求的 HTTP 客户端，这里使用之前配置的 OkHttpClient 实例。
@@ -55,7 +57,8 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
                 .addConverterFactory(JacksonConverterFactory.create())//JSON 数据  Java 对象的互相转化
                 .build().create(IOpenAiApi.class);
 
-        return new DefaultOpenAiSession(openAiApi);
+        configuration.setOpenAiApi(openAiApi);
+        return new DefaultOpenAiSession(configuration);
     }
 
 }

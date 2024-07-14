@@ -4,6 +4,7 @@ import cn.bugstack.chatgpt.common.Constants;
 import cn.bugstack.chatgpt.domain.chat.ChatCompletionRequest;
 import cn.bugstack.chatgpt.domain.chat.ChatCompletionResponse;
 import cn.bugstack.chatgpt.domain.chat.Message;
+import cn.bugstack.chatgpt.domain.qa.QACompletionRequest;
 import cn.bugstack.chatgpt.domain.qa.QACompletionResponse;
 import cn.bugstack.chatgpt.session.Configuration;
 import cn.bugstack.chatgpt.session.OpenAiSession;
@@ -12,10 +13,13 @@ import cn.bugstack.chatgpt.session.defaults.DefaultOpenAiSessionFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author 小傅哥，微信：fustack
@@ -41,60 +45,26 @@ public class ApiTest {
         // 3. 开启会话
         this.openAiSession = factory.openSession();
     }
-
     /**
-     * 简单问答模式，方法废弃推荐使用 test_chat_completions
+     * 此对话模型 3.5 接近于官网体验 & 流式应答
      */
     @Test
-    public void test_qa_completions() throws JsonProcessingException {
-        QACompletionResponse response01 = openAiSession.completions("写个java冒泡排序");
-        log.info("测试结果：{}", new ObjectMapper().writeValueAsString(response01.getChoices()));
-    }
-
-    /**
-     * 此对话模型 3.5 接近于官网体验
-     *
-     * 文档：https://platform.openai.com/docs/guides/text-generation/chat-completions-api
-     * 你可以替换能访问的 apihost【https://api.openai.com】 和 $OPENAI_API_KEY 进行 http 测试
-     * curl https://api.openai.com/v1/chat/completions \
-     *   -H "Content-Type: application/json" \
-     *   -H "Authorization: Bearer $OPENAI_API_KEY" \
-     *   -d '{
-     *     "model": "gpt-3.5-turbo",
-     *     "messages": [
-     *       {
-     *         "role": "system",
-     *         "content": "You are a helpful assistant."
-     *       },
-     *       {
-     *         "role": "user",
-     *         "content": "Who won the world series in 2020?"
-     *       },
-     *       {
-     *         "role": "assistant",
-     *         "content": "The Los Angeles Dodgers won the World Series in 2020."
-     *       },
-     *       {
-     *         "role": "user",
-     *         "content": "Where was it played?"
-     *       }
-     *     ]
-     *   }'
-     */
-    @Test
-    public void test_chat_completions() {
+    public void test_chat_completions_stream() throws JsonProcessingException, InterruptedException {
         // 1. 创建参数
         ChatCompletionRequest chatCompletion = ChatCompletionRequest
                 .builder()
-                .messages(Collections.singletonList(Message.builder().role(Constants.Role.USER).content("加减乘除是什么").build()))
+                .stream(true)
+                .messages(Collections.singletonList(Message.builder().role(Constants.Role.USER).content("写一个java冒泡排序").build()))
                 .model(ChatCompletionRequest.Model.GPT_3_5_TURBO.getCode())
                 .build();
         // 2. 发起请求
-        ChatCompletionResponse chatCompletionResponse = openAiSession.completions(chatCompletion);
-        // 3. 解析结果
-        chatCompletionResponse.getChoices().forEach(e -> {
-            log.info("测试结果：{}", e.getMessage());
+        EventSource eventSource = openAiSession.chatCompletions(chatCompletion, new EventSourceListener() {
+            @Override
+            public void onEvent(EventSource eventSource, String id, String type, String data) {
+                log.info("测试结果：{}", data);
+            }
         });
+        // 等待 服务器发送回来的事件 真实使用的时候这个不会用到
+        new CountDownLatch(1).await();
     }
-
 }
