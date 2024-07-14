@@ -34,7 +34,7 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
         // 主要用于记录HTTP请求和响应的详细信息，包括请求的URL、方法、头部信息，以及响应的状态码、响应体等内容。
         //置拦截器的日志记录级别为 BODY。HttpLoggingInterceptor.Level.BODY 是最详细的日志记录级别，它记录请求和响应的头部、主体和元数据。
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
 
         // 2. 开启 Http 客户端
         OkHttpClient okHttpClient = new OkHttpClient

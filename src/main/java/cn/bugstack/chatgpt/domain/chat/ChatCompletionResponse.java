@@ -1,6 +1,7 @@
 package cn.bugstack.chatgpt.domain.chat;
 
 import cn.bugstack.chatgpt.domain.other.Usage;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @github https://github.com/fuzhengwei
  * @Copyright 公众号：bugstack虫洞栈 | 博客：https://bugstack.cn - 沉淀、分享、成长，让自己和他人都能有所收获！
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class ChatCompletionResponse implements Serializable {
 
@@ -31,8 +33,9 @@ public class ChatCompletionResponse implements Serializable {
     /**
      * 该指纹代表模型运行时使用的后端配置。
      * https://platform.openai.com/docs/api-reference/chat
+     * 这个不加后头实现的那几个接口有bug
      */
-//    @JsonProperty("system_fingerprint")
-//    private String systemFingerprint;
+    @JsonProperty("system_fingerprint")
+    private String systemFingerprint;
 
 }

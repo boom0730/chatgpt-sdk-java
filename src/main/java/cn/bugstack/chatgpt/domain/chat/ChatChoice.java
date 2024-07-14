@@ -1,5 +1,6 @@
 package cn.bugstack.chatgpt.domain.chat;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @github https://github.com/fuzhengwei
  * @Copyright 公众号：bugstack虫洞栈 | 博客：https://bugstack.cn - 沉淀、分享、成长，让自己和他人都能有所收获！
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class ChatChoice implements Serializable {
 
@@ -23,6 +25,9 @@ public class ChatChoice implements Serializable {
     private Message message;
     @JsonProperty("finish_reason")
     private String finishReason;
-//    private String logprobs;
+    /**
+     * 这个删掉之后 后头实现的几个接口也会报错
+     */
+    private String logprobs;
 
 }
