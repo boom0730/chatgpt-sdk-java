@@ -30,7 +30,11 @@ public class Configuration {
     @Getter
     private String apiHost;
 
+    /**
+     * 字段废弃，不在使用
+     */
     @Getter
+    @Deprecated
 //    @NotNull
     private String authToken;
 

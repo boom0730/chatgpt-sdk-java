@@ -21,6 +21,7 @@ import cn.bugstack.chatgpt.session.OpenAiSessionFactory;
 import cn.bugstack.chatgpt.session.defaults.DefaultOpenAiSessionFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import org.junit.Before;
@@ -58,6 +59,40 @@ public class ApiTest {
         this.openAiSession = factory.openSession();
     }
     /**
+     * 【常用对话模式，推荐使用此模型进行测试】
+     * 此对话模型 3.5/4.0 接近于官网体验 & 流式应答
+     */
+    @Test
+    public void test_chat_completions_stream_channel() throws JsonProcessingException, InterruptedException {
+        // 1. 创建参数
+        ChatCompletionRequest chatCompletion = ChatCompletionRequest
+                .builder()
+                .stream(true)
+                .messages(Collections.singletonList(Message.builder().role(Constants.Role.USER).content("1+1").build()))
+                .model(ChatCompletionRequest.Model.GPT_3_5_TURBO.getCode())
+                .maxTokens(1024)
+                .build();
+
+        // 2. 用户配置 【可选参数，支持不同渠道的 apiHost、apiKey】- 方便给每个用户都分配了自己的key，用于售卖场景
+        String apiHost = "https://pro-share-aws-api.zcyai.com/";
+        String apiKey = "sk-b0A0eSKTNxgBqrHv7aAa0808EdB849C89499D928648bD416";
+
+        // 3. 发起请求
+        EventSource eventSource = openAiSession.chatCompletions(apiHost, apiKey, chatCompletion, new EventSourceListener() {
+            @Override
+            public void onEvent(EventSource eventSource, String id, String type, String data) {
+                log.info("测试结果 id:{} type:{} data:{}", id, type, data);
+            }
+
+            @Override
+            public void onFailure(EventSource eventSource, Throwable t, Response response) {
+                log.error("失败 code:{} message:{}", response.code(), response.message());
+            }
+        });
+        // 等待
+        new CountDownLatch(1).await();
+    }
+    /**
      * 此对话模型 3.5 接近于官网体验 & 流式应答
      */
     @Test
@@ -73,7 +108,12 @@ public class ApiTest {
         EventSource eventSource = openAiSession.chatCompletions(chatCompletion, new EventSourceListener() {
             @Override
             public void onEvent(EventSource eventSource, String id, String type, String data) {
-                log.info("测试结果：{}", data);
+                log.info("测试结果 id:{} type:{} data:{}", id, type, data);
+            }
+
+            @Override
+            public void onFailure(EventSource eventSource, Throwable t, Response response) {
+                log.error("失败 code:{} message:{}", response.code(), response.message());
             }
         });
         // 等待 服务器发送回来的事件 真实使用的时候这个不会用到

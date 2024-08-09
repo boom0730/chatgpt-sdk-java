@@ -40,7 +40,7 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
         OkHttpClient okHttpClient = new OkHttpClient
                 .Builder()
                 .addInterceptor(httpLoggingInterceptor)
-                .addInterceptor(new OpenAiInterceptor(configuration.getApiKey(), configuration.getAuthToken()))
+                .addInterceptor(new OpenAiInterceptor(configuration.getApiKey()))
                 .connectTimeout(450, TimeUnit.SECONDS)
                 .writeTimeout(450, TimeUnit.SECONDS)
                 .readTimeout(450, TimeUnit.SECONDS)

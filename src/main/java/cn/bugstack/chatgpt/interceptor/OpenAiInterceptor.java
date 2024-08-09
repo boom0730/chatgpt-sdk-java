@@ -1,5 +1,6 @@
 package cn.bugstack.chatgpt.interceptor;
 
+import cn.bugstack.chatgpt.common.Constants;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.Header;
 import okhttp3.HttpUrl;
@@ -18,35 +19,35 @@ import java.io.IOException;
  */
 public class OpenAiInterceptor implements Interceptor {
 
-    /** OpenAi apiKey 需要在官网申请 */
-    private String apiKey;
+    /** OpenAi apiKey 需要在官网申请  这个是写死了的key*/
+    private final String apiKeyBySystem;
     /** 访问授权接口的认证 Token */
-    private String authToken;
 
-    public OpenAiInterceptor(String apiKey, String authToken) {
-        this.apiKey = apiKey;
-        this.authToken = authToken;
+    public OpenAiInterceptor(String apiKeyBySystem) {
+        this.apiKeyBySystem = apiKeyBySystem;
     }
 
     @NotNull
     @Override
     public Response intercept(Chain chain) throws IOException {
-        return chain.proceed(this.auth(apiKey, chain.request()));
-    }
+        // 1. 获取原始 Request
+        Request original = chain.request();
 
-    private Request auth(String apiKey, Request original) {
-        // 设置Token信息；如果没有此类限制，是不需要设置的。
-        HttpUrl url = original.url().newBuilder()
-                .addQueryParameter("token", authToken)
-                .build();
+        // 2. 读取 apiKey；优先使用自己传递的 apiKey
+        String apiKeyByUser = original.header("apiKey");
+        //apiKeyBySystem这个是写死了的key 我们给的
+        String apiKey = Constants.NULL.equals(apiKeyByUser) ? apiKeyBySystem : apiKeyByUser;
 
-        // 创建请求
-        return original.newBuilder()
-                .url(url)
+        // 3. 构建 Request
+        Request request = original.newBuilder()
+                .url(original.url())
                 .header(Header.AUTHORIZATION.getValue(), "Bearer " + apiKey)
                 .header(Header.CONTENT_TYPE.getValue(), ContentType.JSON.getValue())
                 .method(original.method(), original.body())
                 .build();
+
+        // 4. 返回执行结果
+        return chain.proceed(request);
     }
 
 }
